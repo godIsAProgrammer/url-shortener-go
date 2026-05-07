@@ -1,0 +1,5 @@
+.git/
+server
+*.test
+environment_notes.md
+validation.md
