@@ -6,17 +6,10 @@ ENV CGO_ENABLED=0
 # URL 短链服务的源码、go.mod 和测试都在 /app 下运行。
 WORKDIR /app
 
-# 复制路由、内存存储和 testing 用例作为任务起始现场。
-COPY . /app/
+# 质检构建上下文为 Dockerfile + repo/,这里只生成运行所需二进制,不执行测试或 Git 初始化。
+COPY repo/ .
 
-# 先确认所有测试通过、二进制可成功编译，再把这个可工作的项目固化为 Git 初始提交。
-RUN go test ./... \
-    && go build -o /app/server . \
-    && git init -b main \
-    && git config user.email "agent@example.invalid" \
-    && git config user.name "Agent Fixture" \
-    && git add . \
-    && git commit -m "Initial url shortener fixture"
+RUN go build -o /app/server .
 
 # 暴露 HTTP 服务端口，质检和评审可以通过 -p 端口映射访问 /health 与 /shorten。
 EXPOSE 8789
